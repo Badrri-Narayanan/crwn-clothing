@@ -4,7 +4,7 @@ import FormInput from '../form-input/form-input.component';
 
 import './sign-in.styles.scss'
 
-import {signInWithGoogle} from '../../firebase/firebase.utils'
+import {auth, signInWithGoogle} from '../../firebase/firebase.utils'
 
 class SignIn extends React.Component {
 
@@ -16,13 +16,20 @@ class SignIn extends React.Component {
         }
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async event => {
         event.preventDefault();
 
-        this.setState({
-            email: '',
-            password: '',
-        });
+        const {email, password} = this.state;
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password)
+            this.setState({
+                email: '',
+                password: '',
+            });
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     handleChange = event => {
@@ -32,20 +39,21 @@ class SignIn extends React.Component {
     }
 
     render() {
+        const {email, password} = this.state;
         return (
             <div className="sign-in">
                 <h2>I already have an account</h2>
                 <span>Sign in with Email and password</span>
-                <form onSubmit={() => this.handleSubmit}>
+                <form onSubmit={this.handleSubmit}>
                     <FormInput name="email" type="email" 
-                            value={this.state.email}
+                            value={email}
+                            onChange={this.handleChange}
                             label="Email"
-                            handleChange={() => this.handleChange} 
                     required />
                     <FormInput name="password" type="password" 
-                            value={this.state.password} 
+                            value={password} 
                             label="Password"
-                            handleChange={() => this.handleChange}
+                            onChange={this.handleChange}
                     required />
 
                     <div className="buttons">
